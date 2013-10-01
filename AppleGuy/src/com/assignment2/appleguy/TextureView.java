@@ -18,6 +18,7 @@ public class TextureView extends View {
 	private Paint paint;
 	private int score = -1;
 	private int highscore = -1;
+	private boolean active = false;
 	
 	public TextureView(Context context) {
 		super(context);
@@ -30,26 +31,26 @@ public class TextureView extends View {
 		paint.setColor(col);
 	}
 	
-	public void addPosition(int x, int y, int screenW, int screenH) {
+	public void addPosition(float x, float y, int screenW, int screenH) {
 		posX += x;
 		posY += y;
 		
-		float offset = 2.5f;
-		
+		//Check for collision with outer bounderies
 		if (posX - radius < 0) {
 			posX = 0 + radius;
 		}
-		else if (posX + (radius * offset) > screenW) {
-			posX = (int) (screenW - (radius * offset));
+		else if (posX + radius > screenW) {
+			posX = screenW - radius;
 		}
 		
 		if (posY - radius < 0) {
 			posY = 0 + radius;
 		}
-		else if (posY + (radius * offset) > screenH) {
-			posY = (int) (screenH - (radius * offset));
+		else if (posY + radius > screenH) {
+			posY = screenH - radius;
 		}
 		
+		//Force to draw the object again
 		postInvalidate();
 	}
 	
@@ -57,6 +58,7 @@ public class TextureView extends View {
 		posX = x;
 		posY = y;
 		
+		//Force to draw the object again
 		postInvalidate();
 	}
 	
@@ -69,6 +71,14 @@ public class TextureView extends View {
 		return height;
 	}
 	*/
+	
+	public void setActive(boolean value) {
+		active = value;
+	}
+	
+	public boolean getActive() {
+		return active;
+	}
 	
 	public int getTextureRadius() {
 		return radius;
@@ -84,23 +94,37 @@ public class TextureView extends View {
 	
     @Override
     public void onDraw(final Canvas canvas) {
+    	//Draw circle
     	canvas.drawCircle(posX, posY, radius, paint);
+    	
+    	//Draw image
+    	//canvas.blitImage(image) ?
     }
     
     public boolean isColliding(TextureView obj) {
     	boolean hit = false;
-    	int x = obj.getTextureX();
-    	int y = obj.getTextureY();
-    	int distX = posX - x;
-    	int distY = posY - y;
-    	float hitbox = 1.5f;
     	
-    	if (distX >= (-radius * hitbox) && distX <= (radius * hitbox)) {
-    		//Inside x
-        	if (distY >= (-radius * hitbox) && distY <= (radius * hitbox)) {
-        		//Inside y
-        		hit = true;
-        	}
+    	//Gather objectdata
+    	int x1 = posX;
+    	int y1 = posY;
+    	int r1 = radius;
+    	int x2 = obj.getTextureX();
+    	int y2 = obj.getTextureY();
+    	int r2 = obj.getTextureRadius();
+    	
+    	//Circle hitbox calculations
+    	int distX = x2 - x1;
+    	int expX = getExponantial(distX, 2);
+    	int distY = y1 - y2;
+    	int expY = getExponantial(distY, 2);
+    	int sizeR = r1 + r2;
+    	int expR = getExponantial(sizeR, 2);
+    	
+    	//Circle collision detection
+    	if (expX + expY <= expR) {
+    		if (obj.getActive()) {
+    			hit = true;
+    		}
     	}
     	
     	return hit;
@@ -110,23 +134,26 @@ public class TextureView extends View {
 		Random randomizer = new Random();
 		int randX = randomizer.nextInt(screenW);
 		int randY = randomizer.nextInt(screenH);
-		float offset = 2.5f;
-		
+
+		//Check for collision with outer bounderies
 		if (randX - radius < 0) {
 			randX = 0 + radius;
 		}
-		else if (randX + (radius * offset) > screenW) {
-			randX = (int) (screenW - (radius * offset));
+		else if (randX + radius > screenW) {
+			randX = screenW - radius;
 		}
 		
 		if (randY - radius < 0) {
 			randY = 0 + radius;
 		}
-		else if (randY + (radius * offset) > screenH) {
-			randY = (int) (screenH - (radius * offset));
+		else if (randY + radius > screenH) {
+			randY = screenH - radius;
 		}
 		
+		//Set the new position
 		setPosition(randX, randY);
+		
+		//Update score
 		score += 1;
 		if (score > highscore) {
 			highscore = score;
@@ -143,5 +170,18 @@ public class TextureView extends View {
     
     public void reset() {
     	score = -1;
+    }
+    
+    private int getExponantial(int core, int exp) {
+    	//Returns core^exp (ex: 3^2 = 9)
+    	int result = 1;
+    	int exp_left = exp;
+    	
+    	while (exp_left > 0) {
+    		result *= core;
+    		exp_left--;
+    	}
+    	
+    	return result;
     }
 }
