@@ -70,9 +70,6 @@ public class MainActivity extends Activity implements SensorEventListener {
 		sm = (SensorManager) getSystemService(SENSOR_SERVICE);
 		accelerometer = sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 		
-		//Set up the listener
-		sm.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
-		
 		//Set up game objects
 		scoreStr = (TextView) findViewById(R.id.str_score);
 		highscoreStr = (TextView) findViewById(R.id.str_highscore);
@@ -247,6 +244,19 @@ public class MainActivity extends Activity implements SensorEventListener {
 		//This adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
+	}
+	
+	@Override
+	protected void onPause() {
+		super.onPause();
+		sm.unregisterListener(this);
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		//Set up the listener
+		sm.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
 	}
 
 	@Override
