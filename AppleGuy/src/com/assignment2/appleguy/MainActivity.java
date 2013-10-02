@@ -415,7 +415,7 @@ public class MainActivity extends Activity implements SensorEventListener {
 			y = event.values[0];
 		}
 		else {
-			x = event.values[0];
+			x = -event.values[0];
 			y = event.values[1];
 		}
 
