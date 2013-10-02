@@ -33,15 +33,4 @@
             android:text="@string/apple_health"
             android:textColor="@android:color/holo_orange_dark" />
 
-        <ImageView
-            android:id="@+id/pauseButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_alignTop="@+id/str_score"
-            android:layout_marginRight="14dp"
-            android:contentDescription="@string/button_pause"
-            android:onClick="pauseGame"
-            android:src="@android:drawable/ic_media_pause" />
-
 </RelativeLayout>
