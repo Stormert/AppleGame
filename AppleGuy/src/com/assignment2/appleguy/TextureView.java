@@ -3,8 +3,7 @@ package com.assignment2.appleguy;
 import java.util.Random;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.content.SharedPreferences;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -12,6 +11,8 @@ import android.view.View;
 
 public class TextureView extends View {
 
+	//private int width;
+	//private int height;
 	private int radius = 32;
 	private int posX = 0;
 	private int posY = 0;
@@ -19,11 +20,13 @@ public class TextureView extends View {
 	private int score = -1;
 	private int highscore = -1;
 	private boolean active = false;
-	private Bitmap image;
-	private int direction = 0;
+	private SharedPreferences preferences;
 	
 	public TextureView(Context context) {
 		super(context);
+		
+		preferences = context.getSharedPreferences("Highscore", 0);
+		highscore = preferences.getInt("highscore", -1);
 		
         paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         paint.setColor(Color.GREEN);
@@ -33,27 +36,23 @@ public class TextureView extends View {
 		paint.setColor(col);
 	}
 	
-	public void setDirection(int dir) {
-		direction = dir;
-	}
-	
 	public void addPosition(float x, float y, int screenW, int screenH) {
 		posX += x;
 		posY += y;
 		
 		//Check for collision with outer bounderies
-		if (posX < 0) {
-			posX = 0;
+		if (posX - radius < 0) {
+			posX = 0 + radius;
 		}
-		else if (posX + radius*2 > screenW) {
-			posX = screenW - radius*2;
+		else if (posX + radius > screenW) {
+			posX = screenW - radius;
 		}
 		
-		if (posY < 0) {
-			posY = 0;
+		if (posY - radius < 0) {
+			posY = 0 + radius;
 		}
-		else if (posY + radius*2 > screenH) {
-			posY = screenH - radius*2;
+		else if (posY + radius > screenH) {
+			posY = screenH - radius;
 		}
 		
 		//Force to draw the object again
@@ -68,10 +67,15 @@ public class TextureView extends View {
 		postInvalidate();
 	}
 	
-	public void setImage(int resource) {
-		image = BitmapFactory.decodeResource(getResources(), resource);
-		radius = (int)(image.getWidth() / 2);
+	/*
+	public int getTextureW() {
+		return width;
 	}
+	
+	public int getTextureH() {
+		return height;
+	}
+	*/
 	
 	public void setActive(boolean value) {
 		active = value;
@@ -95,11 +99,11 @@ public class TextureView extends View {
 	
     @Override
     public void onDraw(final Canvas canvas) {
+    	//Draw circle
+    	canvas.drawCircle(posX, posY, radius, paint);
+    	
     	//Draw image
-    	canvas.save(Canvas.MATRIX_SAVE_FLAG);
-    	canvas.rotate(direction, posX + radius, posY + radius);
-        canvas.drawBitmap(image, posX, posY, paint);
-        canvas.restore();
+    	//canvas.blitImage(image) ?
     }
     
     public boolean isColliding(TextureView obj) {
@@ -137,18 +141,18 @@ public class TextureView extends View {
 		int randY = randomizer.nextInt(screenH);
 
 		//Check for collision with outer bounderies
-		if (randX < 0) {
-			randX = 0;
+		if (randX - radius < 0) {
+			randX = 0 + radius;
 		}
-		else if (randX + radius*2 > screenW) {
-			randX = screenW - radius*2;
+		else if (randX + radius > screenW) {
+			randX = screenW - radius;
 		}
 		
-		if (randY < 0) {
-			randY = 0;
+		if (randY - radius < 0) {
+			randY = 0 + radius;
 		}
-		else if (randY + radius*2 > screenH) {
-			randY = screenH - radius*2;
+		else if (randY + radius > screenH) {
+			randY = screenH - radius;
 		}
 		
 		//Set the new position
@@ -158,6 +162,9 @@ public class TextureView extends View {
 		score += 1;
 		if (score > highscore) {
 			highscore = score;
+			SharedPreferences.Editor editor = preferences.edit();
+			editor.putInt("highscore", score);
+			editor.commit();
 		}
     }
     
@@ -182,7 +189,10 @@ public class TextureView extends View {
     		result *= core;
     		exp_left--;
     	}
-    	
+
     	return result;
     }
+    
+    
+    
 }
