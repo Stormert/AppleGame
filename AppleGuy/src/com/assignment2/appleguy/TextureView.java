@@ -3,6 +3,7 @@ package com.assignment2.appleguy;
 import java.util.Random;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -21,9 +22,13 @@ public class TextureView extends View {
 	private boolean active = false;
 	private Bitmap image;
 	private int direction = 0;
+	private SharedPreferences preferences;
 	
 	public TextureView(Context context) {
 		super(context);
+		
+		preferences = context.getSharedPreferences("Highscore", 0);
+		highscore = preferences.getInt("highscore", -1);
 		
         paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         paint.setColor(Color.GREEN);
@@ -158,6 +163,9 @@ public class TextureView extends View {
 		score += 1;
 		if (score > highscore) {
 			highscore = score;
+			SharedPreferences.Editor editor = preferences.edit();
+			editor.putInt("highscore", score);
+			editor.commit();
 		}
     }
     

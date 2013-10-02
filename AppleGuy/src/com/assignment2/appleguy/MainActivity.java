@@ -3,7 +3,9 @@ package com.assignment2.appleguy;
 import java.util.ArrayList;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Point;
@@ -15,12 +17,15 @@ import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.view.Display;
 import android.view.Menu;
+import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 public class MainActivity extends Activity implements SensorEventListener {
-
+	final Context context = this;
+	
 	//The sensor object
 	Sensor accelerometer;
 	float sensorX = 0;
@@ -37,6 +42,7 @@ public class MainActivity extends Activity implements SensorEventListener {
 	TextView highscoreStr;
 	TextView healthStr;
 	ArrayList<TextureView> rotten;
+	ImageView pauseButton;
 	
 	//Screen attributes
 	int screenW = 0;
@@ -87,8 +93,8 @@ public class MainActivity extends Activity implements SensorEventListener {
 		scoreStr = (TextView) findViewById(R.id.str_score);
 		highscoreStr = (TextView) findViewById(R.id.str_highscore);
 		healthStr = (TextView) findViewById(R.id.str_health);
+		pauseButton = (ImageView) findViewById(R.id.pauseButton);
 		scoreStr.setText(getResources().getString(R.string.apple_score) + " 0");
-		highscoreStr.setText(getResources().getString(R.string.apple_highscore) + " 0");
 		healthStr.setText(getResources().getString(R.string.apple_health) + " 0");
 		
 		//...The apple object
@@ -98,6 +104,9 @@ public class MainActivity extends Activity implements SensorEventListener {
 		apple.setRandomPosition(screenW, screenH);
 		apple.setActive(true);
 		((ViewGroup) scoreStr.getParent()).addView(apple);
+		
+		//get highscore from shared preferences after apple object have been initiated
+		highscoreStr.setText(getResources().getString(R.string.apple_highscore) + " " + apple.getHighscore());
 		
 		//...The guy object
 		guy = new TextureView(this);
@@ -115,6 +124,7 @@ public class MainActivity extends Activity implements SensorEventListener {
 		scoreStr.bringToFront();
 		highscoreStr.bringToFront();
 		healthStr.bringToFront();
+		pauseButton.bringToFront();
 		
 		//Set up media player
 	    soundPickUp = MediaPlayer.create(this, R.raw.ps3_trophy);
@@ -291,6 +301,7 @@ public class MainActivity extends Activity implements SensorEventListener {
 		scoreStr.bringToFront();
 		highscoreStr.bringToFront();
 		healthStr.bringToFront();
+		pauseButton.bringToFront();
 	}
 	
 	public void ResetGUI() {
@@ -329,20 +340,68 @@ public class MainActivity extends Activity implements SensorEventListener {
 	@Override
 	protected void onPause() {
 		super.onPause();
-		sm.unregisterListener(this);
+		stopSensor();
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
-		//Set up the listener
-		sm.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+		//Open pause menu
+		openMessageWindow();
 	}
 
 	@Override
 	public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
 	}
+	
+	//open a Message window as a welcome message or as a death screen
+		public void openMessageWindow(){
+			stopSensor();
+			AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
+			// set title
+			alertDialogBuilder.setTitle(R.string.popup_welcome_title);
+			
+			// set dialog message
+			alertDialogBuilder
+				.setMessage(R.string.popup_welcome_message)
+				.setCancelable(false)
+				
+				//Exit game button
+				.setPositiveButton(R.string.popup_welcome_exit,new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog,int id) {
+						MainActivity.this.finish();
+					}
+				})
+				
+				//Resume game button
+				.setNegativeButton(R.string.popup_welcome_start,new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog,int id) {
+						startSensor();
+						dialog.cancel();
+					}
+				});
+			// create alert dialog
+			AlertDialog alertDialog = alertDialogBuilder.create();
+			alertDialog.show();
+		}
+		
+		public void pauseGame(View view)
+	    {
+			openMessageWindow();
+		}
+		
+		//Starts the sensor listener
+		public void startSensor(){
+			sm.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+		}
+		
+		//stop the sensor listener and sett data to 0
+		public void stopSensor(){
+			sm.unregisterListener(this);
+			sensorX = 0;
+			sensorY = 0;
+		}
 
 	@Override
 	public void onSensorChanged(SensorEvent event) {

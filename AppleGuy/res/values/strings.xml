@@ -6,5 +6,10 @@
     <string name="apple_score">Score:</string>
     <string name="apple_highscore">Highscore:</string>
     <string name="apple_health">Extra lives:</string>
+	<string name="popup_welcome_title">Welcome</string>
+    <string name="popup_welcome_message">Gather apples, but stay away from the rocks. Good luck!</string>
+	<string name="popup_welcome_exit">Exit</string>
+    <string name="popup_welcome_start">Play</string>
+    <string name="button_pause">pause</string>
 
 </resources>

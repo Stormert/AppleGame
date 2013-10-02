@@ -6,5 +6,10 @@
     <string name="apple_score">Poeng:</string>
     <string name="apple_highscore">Beste resultat:</string>
     <string name="apple_health">Ekstra liv:</string>
+    <string name="popup_welcome_title">Velkommen</string>
+    <string name="popup_welcome_message">Plukk epler men pass deg for steinene. Lykke til!</string>
+	<string name="popup_welcome_exit">Avslutt</string>
+    <string name="popup_welcome_start">Spill</string>
+    <string name="button_pause">pause</string>
 
 </resources>
