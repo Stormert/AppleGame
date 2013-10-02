@@ -5,6 +5,6 @@
     <string name="action_settings">Settings</string>
     <string name="apple_score">Score:</string>
     <string name="apple_highscore">Highscore:</string>
-    <string name="apple_health">Extra health:</string>
+    <string name="apple_health">Extra lives:</string>
 
 </resources>
